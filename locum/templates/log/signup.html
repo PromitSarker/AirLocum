@@ -61,7 +61,7 @@
       <h2 class="text-2xl font-bold mb-6 text-center">Create Your Account</h2>
 
       <!-- Signup Form -->
-      <div id="signup-form" class="space-y-4 hidden mt-6">
+      <div id="signup-form" class="space-y-4 mt-6">
         <input
           id="signup-name"
           type="text"
@@ -81,7 +81,7 @@
           class="w-full p-3 border rounded-md"
         />
         <button
-          onclick="toggleSignup()"
+          onclick="handleSignup()"
           class="text-blue-600 font-medium hover:underline"
         >
           Sign Up
@@ -117,7 +117,7 @@
           appState.loading = true;
           updateAuthUI();
 
-          const response = await fetch("/api/register", {
+          const response = await fetch("/api/signup", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

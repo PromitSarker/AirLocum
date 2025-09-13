@@ -18,9 +18,11 @@ class LoginSerializer(serializers.Serializer):
         raise serializers.ValidationError('Invalid credentials')
     
 class UserSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(write_only=True, required=False)
+    
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'password', 'first_name', 'last_name')
+        fields = ('id', 'username', 'email', 'password', 'first_name', 'last_name', 'name')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
