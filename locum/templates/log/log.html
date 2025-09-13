@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LocumConnect - Login / Signup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .loading-spinner {
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #3498db;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- Header with Auth Section -->
+  <header class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo -->
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+            <span class="text-white font-bold text-sm">L</span>
+          </div>
+          <span class="text-xl font-semibold text-gray-900">LocumConnect</span>
+        </div>
+
+        <!-- Auth Buttons -->
+        <div id="auth-section" class="flex items-center space-x-4"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Section -->
+  <main class="max-w-2xl mx-auto mt-12 p-6 bg-white shadow rounded-lg">
+    <h2 class="text-2xl font-bold mb-6 text-center">Login or Sign Up</h2>
+
+    <!-- Login Form -->
+    <div id="login-form" class="space-y-4">
+      <input id="login-email" type="email" placeholder="Email"
+        class="w-full p-3 border rounded-md" />
+      <input id="login-password" type="password" placeholder="Password"
+        class="w-full p-3 border rounded-md" />
+      <button onclick="handleLogin()"
+        class="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700">
+        Login
+      </button>
+    </div>
+
+    <div class="text-center mt-6">
+      <p class="text-gray-600">Don’t have an account?</p>
+      <button onclick="toggleSignup()"
+        class="text-blue-600 font-medium hover:underline">
+        Create one
+      </button>
+    </div>
+
+    <!-- Signup Form (hidden initially) -->
+    <div id="signup-form" class="space-y-4 hidden mt-6">
+      <input id="signup-name" type="text" placeholder="Full Name"
+        class="w-full p-3 border rounded-md" />
+      <input id="signup-email" type="email" placeholder="Email"
+        class="w-full p-3 border rounded-md" />
+      <input id="signup-password" type="password" placeholder="Password"
+        class="w-full p-3 border rounded-md" />
+      <button onclick="handleSignup()"
+        class="w-full bg-green-600 text-white py-3 rounded-md hover:bg-green-700">
+        Sign Up
+      </button>
+    </div>
+  </main>
+
+  <script>
+    // ---- App State ----
+    let appState = {
+      isLoggedIn: false,
+      user: null,
+      loading: false,
+    };
+
+    // ---- API Calls ----
+    async function loginUser(email, password) {
+        try {
+          appState.loading = true;
+          updateAuthUI();
+
+          const response = await fetch("/api/login", {
+            method: "POST",  // Ensure this is POST, not GET
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+
+        const data = await response.json();
+        if (response.ok) {
+          appState.isLoggedIn = true;
+          appState.user = data.user;
+          localStorage.setItem("token", data.token);
+          updateAuthUI();
+          alert("Login successful!");
+        } else {
+          alert(data.message || "Login failed");
+        }
+      } catch (error) {
+        console.error("Login error:", error);
+        alert("An error occurred while logging in.");
+      } finally {
+        appState.loading = false;
+        updateAuthUI();
+      }
+    }
+
+    async function registerUser(userData) {
+      try {
+        appState.loading = true;
+        updateAuthUI();
+
+        const response = await fetch("/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userData),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          appState.isLoggedIn = true;
+          appState.user = data.user;
+          localStorage.setItem("token", data.token);
+          updateAuthUI();
+          alert("Registration successful!");
+        } else {
+          alert(data.message || "Registration failed");
+        }
+      } catch (error) {
+        console.error("Registration error:", error);
+        alert("An error occurred while registering.");
+      } finally {
+        appState.loading = false;
+        updateAuthUI();
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("token");
+      appState.isLoggedIn = false;
+      appState.user = null;
+      updateAuthUI();
+      alert("Logged out successfully!");
+    }
+
+    // ---- UI Updates ----
+    function updateAuthUI() {
+      const authSection = document.getElementById("auth-section");
+      if (!authSection) return;
+
+      if (appState.loading) {
+        authSection.innerHTML = `
+          <div class="loading-spinner"></div>
+          <span>Loading...</span>
+        `;
+        return;
+      }
+
+      if (appState.isLoggedIn) {
+        authSection.innerHTML = `
+          <span class="text-gray-700 font-medium">Welcome, ${appState.user?.name || "User"}</span>
+          <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">
+            Logout
+          </button>
+        `;
+      } else {
+        authSection.innerHTML = `
+          <button onclick="document.getElementById('login-form').classList.remove('hidden')" 
+            class="text-gray-700 hover:text-blue-600 font-medium">Login</button>
+          <button onclick="toggleSignup()" 
+            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Sign Up</button>
+        `;
+      }
+    }
+
+    // ---- Event Handlers ----
+    function handleLogin() {
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+      loginUser(email, password);
+    }
+
+    function handleSignup() {
+      const name = document.getElementById("signup-name").value;
+      const email = document.getElementById("signup-email").value;
+      const password = document.getElementById("signup-password").value;
+      registerUser({ name, email, password });
+    }
+
+    function toggleSignup() {
+      document.getElementById("signup-form").classList.toggle("hidden");
+    }
+
+    // ---- Init ----
+    document.addEventListener("DOMContentLoaded", function () {
+      const token = localStorage.getItem("token");
+      if (token) {
+        // Optionally: validate token with backend
+        appState.isLoggedIn = false;
+      }
+      updateAuthUI();
+    });
+  </script>
+</body>
+</html>
