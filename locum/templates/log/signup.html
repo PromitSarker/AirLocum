@@ -6,6 +6,10 @@
     <meta name="csrf-token" content="{{ csrf_token }}" />
     <title>LocumConnect - Sign Up</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
       .loading-spinner {
         border: 2px solid #f3f3f3;
@@ -25,9 +29,32 @@
           transform: rotate(360deg);
         }
       }
+      body {
+        background: linear-gradient(120deg, #f0f9ff 0%, #e0f2fe 100%);
+        min-height: 100vh;
+      }
+      .card-shadow {
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+          0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      }
+      .input-focus:focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      }
+      .animate-float {
+        animation: float 6s ease-in-out infinite;
+      }
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
     </style>
   </head>
-  <body class="bg-gray-50 min-h-screen">
+  <body class="min-h-screen flex flex-col">
     <!-- Header with Auth Section -->
     <header class="bg-white shadow-sm border-b">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -48,7 +75,7 @@
           <div id="auth-section" class="flex items-center space-x-4">
             <a
               href="/login/"
-              class="text-gray-700 hover:text-blue-600 font-medium"
+              class="text-gray-700 hover:text-blue-600 font-medium transition duration-200"
               >Login</a
             >
           </div>
@@ -56,45 +83,120 @@
       </div>
     </header>
 
-    <!-- Main Section -->
-    <main class="max-w-2xl mx-auto mt-12 p-6 bg-white shadow rounded-lg">
-      <h2 class="text-2xl font-bold mb-6 text-center">Create Your Account</h2>
+    <!-- Main Content -->
+    <main
+      class="flex-grow flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8"
+    >
+      <div class="max-w-md w-full space-y-8">
+        <!-- Illustration -->
+        <div class="text-center animate-float">
+          <div
+            class="mx-auto h-32 w-32 bg-blue-100 rounded-full flex items-center justify-center"
+          >
+            <i class="fas fa-user-plus text-blue-500 text-6xl"></i>
+          </div>
+        </div>
 
-      <!-- Signup Form -->
-      <div id="signup-form" class="space-y-4 mt-6">
-        <input
-          id="signup-name"
-          type="text"
-          placeholder="Full Name"
-          class="w-full p-3 border rounded-md"
-        />
-        <input
-          id="signup-email"
-          type="email"
-          placeholder="Email"
-          class="w-full p-3 border rounded-md"
-        />
-        <input
-          id="signup-password"
-          type="password"
-          placeholder="Password"
-          class="w-full p-3 border rounded-md"
-        />
-        <button
-          onclick="handleSignup()"
-          class="text-blue-600 font-medium hover:underline"
-        >
-          Sign Up
-        </button>
-      </div>
+        <!-- Signup Card -->
+        <div class="bg-white p-10 rounded-xl card-shadow">
+          <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-2">
+            Create Your Account
+          </h2>
+          <p class="text-gray-600 text-center mb-8">
+            Join our community of healthcare professionals
+          </p>
 
-      <div class="text-center mt-6">
-        <p class="text-gray-600">Already have an account?</p>
-        <a href="/login/" class="text-blue-600 font-medium hover:underline"
-          >Login</a
-        >
+          <!-- Signup Form -->
+          <div id="signup-form" class="space-y-6">
+            <div class="relative">
+              <div
+                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+              >
+                <i class="fas fa-user text-gray-400"></i>
+              </div>
+              <input
+                id="signup-name"
+                type="text"
+                placeholder="Full Name"
+                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+              />
+            </div>
+
+            <div class="relative">
+              <div
+                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+              >
+                <i class="fas fa-envelope text-gray-400"></i>
+              </div>
+              <input
+                id="signup-email"
+                type="email"
+                placeholder="Email Address"
+                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+              />
+            </div>
+
+            <div class="relative">
+              <div
+                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+              >
+                <i class="fas fa-lock text-gray-400"></i>
+              </div>
+              <input
+                id="signup-password"
+                type="password"
+                placeholder="Password"
+                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+              />
+            </div>
+
+            <div class="flex items-center">
+              <input
+                id="terms"
+                type="checkbox"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label for="terms" class="ml-2 block text-sm text-gray-700">
+                I agree to the
+                <a href="#" class="text-blue-600 hover:text-blue-500"
+                  >Terms of Service</a
+                >
+                and
+                <a href="#" class="text-blue-600 hover:text-blue-500"
+                  >Privacy Policy</a
+                >
+              </label>
+            </div>
+
+            <button
+              onclick="handleSignup()"
+              class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 flex justify-center items-center"
+            >
+              <span id="signup-text">Create Account</span>
+              <div id="signup-spinner" class="loading-spinner hidden"></div>
+            </button>
+          </div>
+
+          <div class="text-center mt-8 pt-6 border-t border-gray-200">
+            <p class="text-gray-600">Already have an account?</p>
+            <a
+              href="/"
+              class="font-medium text-blue-600 hover:text-blue-500 transition duration-200"
+              >Sign in here</a
+            >
+          </div>
+        </div>
       </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12 py-6">
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm"
+      >
+        &copy; 2023 LocumConnect. All rights reserved.
+      </div>
+    </footer>
 
     <script>
       // ---- App State ----
@@ -102,20 +204,22 @@
         loading: false,
       };
 
-      function toggleSignup() {
-        document.getElementById("signup-form").classList.toggle("hidden");
-      }
-
       // Get CSRF token
       const csrfToken = document
         .querySelector("[name=csrf-token]")
         .getAttribute("content");
+
+      // ---- UI Elements ----
+      const signupText = document.getElementById("signup-text");
+      const signupSpinner = document.getElementById("signup-spinner");
 
       // ---- API Calls ----
       async function registerUser(userData) {
         try {
           appState.loading = true;
           updateAuthUI();
+          signupText.textContent = "Creating account...";
+          signupSpinner.classList.remove("hidden");
 
           const response = await fetch("/api/signup", {
             method: "POST",
@@ -129,18 +233,62 @@
           const data = await response.json();
           if (response.ok) {
             localStorage.setItem("token", data.token);
-            alert("Registration successful! You can now login.");
-            window.location.href = "/login/";
+            showNotification(
+              "Registration successful! Redirecting to login...",
+              "success"
+            );
+
+            // Redirect to login after a brief delay
+            setTimeout(() => {
+              window.location.href = "/login/";
+            }, 1500);
           } else {
-            alert(data.message || "Registration failed");
+            showNotification(data.message || "Registration failed", "error");
           }
         } catch (error) {
           console.error("Registration error:", error);
-          alert("An error occurred while registering.");
+          showNotification("An error occurred while registering.", "error");
         } finally {
           appState.loading = false;
+          signupText.textContent = "Create Account";
+          signupSpinner.classList.add("hidden");
           updateAuthUI();
         }
+      }
+
+      // ---- Notification System ----
+      function showNotification(message, type = "info") {
+        // Remove any existing notifications
+        const existingNotification = document.querySelector(".notification");
+        if (existingNotification) {
+          existingNotification.remove();
+        }
+
+        const notification = document.createElement("div");
+        notification.className = `notification fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-y-[-100px] ${
+          type === "success"
+            ? "bg-green-500"
+            : type === "error"
+            ? "bg-red-500"
+            : "bg-blue-500"
+        } text-white`;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        // Animate in
+        setTimeout(() => {
+          notification.classList.remove("translate-y-[-100px]");
+          notification.classList.add("translate-y-0");
+        }, 10);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+          notification.classList.add("opacity-0");
+          setTimeout(() => {
+            notification.remove();
+          }, 300);
+        }, 3000);
       }
 
       // ---- UI Updates ----
@@ -150,8 +298,10 @@
 
         if (appState.loading) {
           authSection.innerHTML = `
-          <div class="loading-spinner"></div>
-          <span>Loading...</span>
+          <div class="flex items-center">
+            <div class="loading-spinner"></div>
+            <span class="text-gray-700">Loading...</span>
+          </div>
         `;
           return;
         }
@@ -162,8 +312,44 @@
         const name = document.getElementById("signup-name").value;
         const email = document.getElementById("signup-email").value;
         const password = document.getElementById("signup-password").value;
+        const terms = document.getElementById("terms").checked;
+
+        // Simple validation
+        if (!name || !email || !password) {
+          showNotification("Please fill in all fields", "error");
+          return;
+        }
+
+        if (!terms) {
+          showNotification("Please accept the terms and conditions", "error");
+          return;
+        }
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          showNotification("Please enter a valid email address", "error");
+          return;
+        }
+
+        // Password validation (at least 6 characters)
+        if (password.length < 6) {
+          showNotification(
+            "Password must be at least 6 characters long",
+            "error"
+          );
+          return;
+        }
+
         registerUser({ name, email, password });
       }
+
+      // Add keyboard event listener for Enter key
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          handleSignup();
+        }
+      });
 
       // ---- Init ----
       document.addEventListener("DOMContentLoaded", function () {
