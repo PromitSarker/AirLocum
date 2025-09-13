@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LocumConnect - Login / Signup</title>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>LocumConnect - Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .loading-spinner {
@@ -37,14 +38,16 @@
         </div>
 
         <!-- Auth Buttons -->
-        <div id="auth-section" class="flex items-center space-x-4"></div>
+        <div id="auth-section" class="flex items-center space-x-4">
+          <a href="/signup/" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Sign Up</a>
+        </div>
       </div>
     </div>
   </header>
 
   <!-- Main Section -->
   <main class="max-w-2xl mx-auto mt-12 p-6 bg-white shadow rounded-lg">
-    <h2 class="text-2xl font-bold mb-6 text-center">Login or Sign Up</h2>
+    <h2 class="text-2xl font-bold mb-6 text-center">Login to Your Account</h2>
 
     <!-- Login Form -->
     <div id="login-form" class="space-y-4">
@@ -59,25 +62,8 @@
     </div>
 
     <div class="text-center mt-6">
-      <p class="text-gray-600">Don’t have an account?</p>
-      <button onclick="toggleSignup()"
-        class="text-blue-600 font-medium hover:underline">
-        Create one
-      </button>
-    </div>
-
-    <!-- Signup Form (hidden initially) -->
-    <div id="signup-form" class="space-y-4 hidden mt-6">
-      <input id="signup-name" type="text" placeholder="Full Name"
-        class="w-full p-3 border rounded-md" />
-      <input id="signup-email" type="email" placeholder="Email"
-        class="w-full p-3 border rounded-md" />
-      <input id="signup-password" type="password" placeholder="Password"
-        class="w-full p-3 border rounded-md" />
-      <button onclick="handleSignup()"
-        class="w-full bg-green-600 text-white py-3 rounded-md hover:bg-green-700">
-        Sign Up
-      </button>
+      <p class="text-gray-600">Don't have an account?</p>
+      <a href="/signup/" class="text-blue-600 font-medium hover:underline">Sign Up</a>
     </div>
   </main>
 
@@ -89,6 +75,9 @@
       loading: false,
     };
 
+    // Get CSRF token
+    const csrfToken = document.querySelector('[name=csrf-token]').getAttribute('content');
+
     // ---- API Calls ----
     async function loginUser(email, password) {
         try {
@@ -96,8 +85,11 @@
           updateAuthUI();
 
           const response = await fetch("/api/login", {
-            method: "POST",  // Ensure this is POST, not GET
-            headers: { "Content-Type": "application/json" },
+            method: "POST",
+            headers: { 
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrfToken,
+            },
             body: JSON.stringify({ email, password }),
           });
 
@@ -108,42 +100,14 @@
           localStorage.setItem("token", data.token);
           updateAuthUI();
           alert("Login successful!");
+          // Redirect to dashboard or home page after login
+          window.location.href = "/dashboard/";
         } else {
           alert(data.message || "Login failed");
         }
       } catch (error) {
         console.error("Login error:", error);
         alert("An error occurred while logging in.");
-      } finally {
-        appState.loading = false;
-        updateAuthUI();
-      }
-    }
-
-    async function registerUser(userData) {
-      try {
-        appState.loading = true;
-        updateAuthUI();
-
-        const response = await fetch("/api/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(userData),
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-          appState.isLoggedIn = true;
-          appState.user = data.user;
-          localStorage.setItem("token", data.token);
-          updateAuthUI();
-          alert("Registration successful!");
-        } else {
-          alert(data.message || "Registration failed");
-        }
-      } catch (error) {
-        console.error("Registration error:", error);
-        alert("An error occurred while registering.");
       } finally {
         appState.loading = false;
         updateAuthUI();
@@ -180,10 +144,7 @@
         `;
       } else {
         authSection.innerHTML = `
-          <button onclick="document.getElementById('login-form').classList.remove('hidden')" 
-            class="text-gray-700 hover:text-blue-600 font-medium">Login</button>
-          <button onclick="toggleSignup()" 
-            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Sign Up</button>
+          <a href="/signup/" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Sign Up</a>
         `;
       }
     }
@@ -195,23 +156,12 @@
       loginUser(email, password);
     }
 
-    function handleSignup() {
-      const name = document.getElementById("signup-name").value;
-      const email = document.getElementById("signup-email").value;
-      const password = document.getElementById("signup-password").value;
-      registerUser({ name, email, password });
-    }
-
-    function toggleSignup() {
-      document.getElementById("signup-form").classList.toggle("hidden");
-    }
-
     // ---- Init ----
     document.addEventListener("DOMContentLoaded", function () {
       const token = localStorage.getItem("token");
       if (token) {
         // Optionally: validate token with backend
-        appState.isLoggedIn = false;
+        appState.isLoggedIn = true;
       }
       updateAuthUI();
     });

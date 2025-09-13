@@ -32,7 +32,7 @@ class LoginView(generics.GenericAPIView):
             status=status.HTTP_401_UNAUTHORIZED
         )
 
-class RegisterView(generics.CreateAPIView):
+class SignupView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.AllowAny]
     
@@ -52,4 +52,6 @@ class RegisterView(generics.CreateAPIView):
 
 # Update this view to use the correct template path
 def log(request):
-    return render(request, 'locum/templates/log/log.html')  # Updated path
+    return render(request, 'log/log.html') # Updated path
+def signup_page(request):
+    return render(request, 'log/signup.html')
