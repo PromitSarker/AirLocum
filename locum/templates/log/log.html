@@ -39,6 +39,28 @@
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-10px); }
     }
+    .google-btn {
+      background: white;
+      color: #757575;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 12px 16px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .google-btn:hover {
+      background-color: #f8f9fa;
+    }
+    .google-icon {
+      margin-right: 10px;
+      width: 18px;
+      height: 18px;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -54,7 +76,7 @@
           </div>
           <span class="text-xl font-semibold text-gray-900">LocumConnect</span>
         </div>
-
+        
         <!-- Auth Buttons -->
         <div id="auth-section" class="flex items-center space-x-4">
           <a href="/signup/" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200">Sign Up</a>
@@ -109,6 +131,19 @@
             <span id="login-text">Login</span>
             <div id="login-spinner" class="loading-spinner hidden"></div>
           </button>
+
+          <!-- Divider -->
+          <div class="relative flex items-center mt-6">
+            <div class="flex-grow border-t border-gray-300"></div>
+            <span class="flex-shrink mx-4 text-gray-500 text-sm">Or continue with</span>
+            <div class="flex-grow border-t border-gray-300"></div>
+          </div>
+
+          <!-- Google Sign-In Button -->
+          <div id="googleSignInButton" class="google-btn">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" class="google-icon">
+            Sign in with Google
+          </div>
         </div>
 
         <div class="text-center mt-8 pt-6 border-t border-gray-200">
@@ -126,6 +161,9 @@
     </div>
   </footer>
 
+  <!-- Google Sign-In Script -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  
   <script>
     // ---- App State ----
     let appState = {
@@ -140,6 +178,86 @@
     // ---- UI Elements ----
     const loginText = document.getElementById('login-text');
     const loginSpinner = document.getElementById('login-spinner');
+
+    // ---- Google Sign-In ----
+      function initializeGoogleSignIn() {
+      console.log('Initializing Google Sign-In');
+      const googleClientId = "YOUR_GOOGLE_CLIENT_ID"; // Replace with real ID
+      
+      if (!googleClientId || googleClientId === "YOUR_GOOGLE_CLIENT_ID") {
+        console.error("Please set your Google Client ID");
+        return;
+      }
+
+      try {
+        google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: handleGoogleSignIn
+        });
+        
+        console.log('Google Sign-In initialized');
+        
+        google.accounts.id.renderButton(
+          document.getElementById("googleSignInButton"),
+          { 
+            theme: "outline", 
+            size: "large",
+            width: document.getElementById("googleSignInButton").offsetWidth,
+            text: "signin_with",
+            shape: "rectangular"
+          }
+        );
+        
+        console.log('Google button rendered');
+      } catch (error) {
+        console.error('Error initializing Google Sign-In:', error);
+      }
+    }
+
+    function handleGoogleSignIn(response) {
+  console.log('Google Sign-In response received', response);
+      // Show loading state
+      appState.loading = true;
+      updateAuthUI();
+      
+      // Send the token to your backend
+      fetch('/api/google-login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify({ token: response.credential })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.access) {
+          // Store the JWT tokens
+          localStorage.setItem('access_token', data.access);
+          localStorage.setItem('refresh_token', data.refresh);
+          appState.isLoggedIn = true;
+          appState.user = data.user;
+          
+          // Show success message
+          showNotification('Google login successful! Redirecting...', 'success');
+          
+          // Redirect or update UI
+          setTimeout(() => {
+            window.location.href = '/dashboard/';
+          }, 1500);
+        } else {
+          showNotification(data.error || 'Google login failed', 'error');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred during Google login', 'error');
+      })
+      .finally(() => {
+        appState.loading = false;
+        updateAuthUI();
+      });
+    }
 
     // ---- API Calls ----
     async function loginUser(email, password) {
@@ -188,6 +306,8 @@
 
     function logout() {
       localStorage.removeItem("token");
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
       appState.isLoggedIn = false;
       appState.user = null;
       updateAuthUI();
@@ -288,6 +408,14 @@
         appState.isLoggedIn = true;
       }
       updateAuthUI();
+      
+      // Initialize Google Sign-In when the Google library is loaded
+      if (typeof google !== 'undefined') {
+        initializeGoogleSignIn();
+      } else {
+        // Wait for the Google library to load
+        window.addEventListener('load', initializeGoogleSignIn);
+      }
     });
   </script>
 </body>
